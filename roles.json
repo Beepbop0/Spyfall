@@ -1,0 +1,475 @@
+{
+    "Airplane": [
+        "First Class Passenger",
+        "Air Marshall",
+        "Mechanic",
+        "Air Hostess",
+        "Copilot",
+        "Captain",
+        "Economy Class Passenger"
+    ],
+    "Bank": [
+        "Armored Car Driver",
+        "Manager",
+        "Consultant",
+        "Robber",
+        "Security Guard",
+        "Teller",
+        "Customer"
+    ],
+    "Beach": [
+        "Beach Waitress",
+        "Kite Surfer",
+        "Lifeguard",
+        "Thief",
+        "Beach Photographer",
+        "Ice Cream Truck Driver",
+        "Beach Goer"
+    ],
+    "Casino": [
+        "Bartender",
+        "Head Security Guard",
+        "Bouncer",
+        "Manager",
+        "Hustler",
+        "Dealer",
+        "Gambler"
+    ],
+    "Cathedral": [
+        "Priest",
+        "Beggar",
+        "Sinner",
+        "Tourist",
+        "Sponsor",
+        "Chorister",
+        "Parishioner"
+    ],
+    "Circus Tent": [
+        "Acrobat",
+        "Animal Trainer",
+        "Magician",
+        "Fire Eater",
+        "Clown",
+        "Juggler",
+        "Visitor"
+    ],
+    "Corporate Party": [
+        "Entertainer",
+        "Manager",
+        "Unwanted Guest",
+        "Owner",
+        "Secretary",
+        "Delivery Boy",
+        "Accountant"
+    ],
+    "Crusader Army": [
+        "Monk",
+        "Imprisoned Saracen",
+        "Servant",
+        "Bishop",
+        "Squire",
+        "Archer",
+        "Knight"
+    ],
+    "Day Spa": [
+        "Stylist",
+        "Masseuse",
+        "Manicurist",
+        "Makeup Artist",
+        "Dermatologist",
+        "Beautician",
+        "Customer"
+    ],
+    "Embassy": [
+        "Security Guard",
+        "Secretary",
+        "Ambassador",
+        "Tourist",
+        "Refugee",
+        "Diplomat",
+        "Government Official"
+    ],
+    "Hospital": [
+        "Nurse",
+        "Doctor",
+        "Anesthesiologist",
+        "Intern",
+        "Therapist",
+        "Surgeon",
+        "Patient"
+    ],
+    "Hotel": [
+        "Doorman",
+        "Security Guard",
+        "Manager",
+        "Housekeeper",
+        "Bartender",
+        "Bellman",
+        "Customer"
+    ],
+    "Military Base": [
+        "Deserter",
+        "Colonel",
+        "Medic",
+        "Sniper",
+        "Officer",
+        "Tank Engineer",
+        "Soldier"
+    ],
+    "Movie Studio": [
+        "Stunt Man",
+        "Sound Engineer",
+        "Camera Man",
+        "Director",
+        "Costume Artist",
+        "Producer",
+        "Actor"
+    ],
+    "Ocean Liner": [
+        "Cook",
+        "Captain",
+        "Bartender",
+        "Musician",
+        "Waiter",
+        "Mechanic",
+        "Rich Passenger"
+    ],
+    "Passanger Train": [
+        "Mechanic",
+        "Border Patrol",
+        "Train Attendant",
+        "Restaurant Chef",
+        "Train Driver",
+        "Stoker",
+        "Passenger"
+    ],
+    "Pirate Ship": [
+        "Cook",
+        "Slave",
+        "Cannoneer",
+        "Tied Up Prisoner",
+        "Cabin Boy",
+        "Brave Captain",
+        "Sailor"
+    ],
+    "Polar Station": [
+        "Medic",
+        "Expedition Leader",
+        "Biologist",
+        "Radioman",
+        "Hydrologist",
+        "Meteorologist",
+        "Geologist"
+    ],
+    "Wedding": [
+        "Ring Bearer",
+        "Groom",
+        "Bride",
+        "Officiant",
+        "Photographer",
+        "Flower Girl",
+        "Father Of The Bride",
+        "Wedding Crasher",
+        "Best Man",
+        "Maid Of Honor",
+        "Relative"
+    ],
+    "Coal Mine": [
+        "Safety Inspector",
+        "Miner",
+        "Overseer",
+        "Dump Truck Operator",
+        "Driller",
+        "Coordinator",
+        "Blasting Engineer",
+        "Solid Waste Engineer",
+        "Worker"
+    ],
+    "Cat Show": [
+        "Judge",
+        "Veterinarian",
+        "Security Guard",
+        "Cat Trainer",
+        "Crazy Cat Lady",
+        "Animal Lover",
+        "Cat Owner",
+        "Cat"
+    ],
+    "Police Station": [
+        "Detective",
+        "Lawyer",
+        "Journalist",
+        "Criminalist",
+        "Archivist",
+        "Criminal",
+        "Patrol Officer"
+    ],
+    "Restaurant": [
+        "Musician",
+        "Bouncer",
+        "Hostess",
+        "Head Chef",
+        "Food Critic",
+        "Waiter",
+        "Customer"
+    ],
+    "School": [
+        "Gym Teacher",
+        "Principal",
+        "Security Guard",
+        "Janitor",
+        "Cafeteria Lady",
+        "Maintenance Man",
+        "Student"
+    ],
+    "Service Station": [
+        "Manager",
+        "Tire Specialist",
+        "Biker",
+        "Car Owner",
+        "Car Wash Operator",
+        "Electrician",
+        "Auto Mechanic"
+    ],
+    "Space Station": [
+        "Engineer",
+        "Alien",
+        "Pilot",
+        "Commander",
+        "Scientist",
+        "Doctor",
+        "Space Tourist"
+    ],
+    "Submarine": [
+        "Cook",
+        "Commander",
+        "Sonar Technician",
+        "Electronics Technician",
+        "Radioman",
+        "Navigator",
+        "Sailor"
+    ],
+    "Super Market": [
+        "Cashier",
+        "Butcher",
+        "Janitor",
+        "Security Guard",
+        "Food Sample Demonstrator",
+        "Shelf Stocker",
+        "Customer"
+    ],
+    "Theater": [
+        "Coat Check Lady",
+        "Prompter",
+        "Cashier",
+        "Director",
+        "Actor",
+        "Crew Man",
+        "Audience Member"
+    ],
+    "University": [
+        "Graduate Student",
+        "Professor",
+        "Dean",
+        "Psychologist",
+        "Maintenance Man",
+        "Janitor",
+        "Student"
+    ],
+    "World War II Squad": [
+        "Resistance Fighter",
+        "Radioman",
+        "Scout",
+        "Medic",
+        "Cook",
+        "Imprisoned Nazi",
+        "Soldier"
+    ],
+    "Art Museum": [
+        "Ticket Seller",
+        "Student",
+        "Visitor",
+        "Teacher",
+        "Security Guard",
+        "Painter",
+        "Art Collector",
+        "Art Critic",
+        "Photographer",
+        "Tourist"
+    ],
+    "Baseball Stadium": [
+        "Pitcher",
+        "Catcher",
+        "Commentator",
+        "Spectator",
+        "Security Guard",
+        "Umpire",
+        "Food Vendor",
+        "Manager",
+        "First Baseman",
+        "Shortstop",
+        "Outfielder",
+        "Second Baseman",
+        "Third Baseman",
+        "Mascot",
+        "Team Owner"
+    ],
+    "Candy Factory": [
+        "Candy Maker",
+        "Pastry Chef",
+        "Visitor",
+        "Taster",
+        "Truffle Maker",
+        "Supply Worker",
+        "Packager",
+        "Inspector",
+        "Machine Operator",
+        "Janitor"
+    ],
+    "Cemetery": [
+        "Priest",
+        "Grave Robber",
+        "Poet",
+        "Mourning Person",
+        "Gatekeeper",
+        "Dead Person",
+        "Relative",
+        "Flower Seller",
+        "Grave Digger",
+        "Gothic Girl"
+    ],
+    "Construction Site": [
+        "Contractor",
+        "Crane Driver",
+        "Trespasser",
+        "Safety Officer",
+        "Electrician",
+        "Engineer",
+        "Architect",
+        "Construction Worker"
+    ],
+    "Harbor Docks": [
+        "Loader",
+        "Salty Old Pirate",
+        "Captain",
+        "Sailor",
+        "Fisherman",
+        "Exporter",
+        "Cargo Overseer",
+        "Cargo Inspector",
+        "Smuggler"
+    ],
+    "Jail": [
+        "Wrongly Accused Man",
+        "Cctv Operator",
+        "Guard",
+        "Visitor",
+        "Lawyer",
+        "Janitor",
+        "Jailkeeper",
+        "Criminal",
+        "Correctional Officer",
+        "Maniac"
+    ],
+    "Jazz Club": [
+        "Bouncer",
+        "Drummer",
+        "Pianist",
+        "Saxophonist",
+        "Singer",
+        "Jazz Fanatic",
+        "Dancer",
+        "Barman",
+        "Vip",
+        "Waiter"
+    ],
+    "Library": [
+        "Old Man",
+        "Journalist",
+        "Author",
+        "Volunteer",
+        "Student",
+        "Librarian",
+        "Loudmouth",
+        "Book Fanatic",
+        "Nerd"
+    ],
+    "Race Track": [
+        "Team Owner",
+        "Driver",
+        "Engineer",
+        "Spectator",
+        "Referee",
+        "Mechanic",
+        "Food Vendor",
+        "Commentator",
+        "Bookmaker"
+    ],
+    "Retirement Home": [
+        "Relative",
+        "Cribbage Player",
+        "Old Person",
+        "Nurse",
+        "Janitor",
+        "Cook",
+        "Blind Person",
+        "Psychologist"
+    ],
+    "Rock Concert": [
+        "Dancer",
+        "Singer",
+        "Fan",
+        "Guitarist",
+        "Drummer",
+        "Roadie",
+        "Stage Diver",
+        "Security Guard",
+        "Bassist",
+        "Sound Technician"
+    ],
+    "Sightseeing Bus": [
+        "Old Man",
+        "Lone Tourist",
+        "Driver",
+        "Annoying Child",
+        "Tourist",
+        "Tour Guide",
+        "Photographer",
+        "Lost Person"
+    ],
+    "Subway": [
+        "Tourist",
+        "Subway Operator",
+        "Ticket Inspector",
+        "Pregnant Lady",
+        "Pickpocket",
+        "Cleaner",
+        "Businessman",
+        "Ticket Seller",
+        "Old Lady",
+        "Blind Man"
+    ],
+    "Vineyard": [
+        "Gardener",
+        "Gourmet Guide",
+        "Winemaker",
+        "Exporter",
+        "Butler",
+        "Wine Taster",
+        "Sommelier",
+        "Owner",
+        "Vineyard Manager",
+        "Oenologist"
+    ],
+    "The United Nations": [
+        "Diplomat",
+        "Interpreter",
+        "Blowhard",
+        "Tourist",
+        "Napping Delegate",
+        "Journalist",
+        "Secretary Of State",
+        "Speaker",
+        "Lobbyist"
+    ]
+}
