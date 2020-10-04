@@ -133,7 +133,6 @@ where
                     "(Player {}) Dealing with broker message {:?}",
                     player, broker_msg
                 );
-                // seems to be an issue with sendin back these messages
                 send_back_msg(&broker_msg, ws_sink).await?;
             }
             Either::Right(ws_msg_res) => {
