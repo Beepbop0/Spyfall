@@ -5,6 +5,7 @@ use serde::Serialize;
 use smol::channel::{self, Receiver, Sender};
 use spyfall::{find_index, AsyncErr, AsyncResult, PlayerId};
 use std::collections::hash_map::{Entry, HashMap, OccupiedEntry, VacantEntry};
+use std::sync::Arc;
 
 const ROOM_ID_BYTES: usize = 5;
 const MAX_ROOM_CREATION_ATTEMPTS: usize = 5;
@@ -15,8 +16,8 @@ pub type JoinResult = Result<(Connected, Receiver<BrokerMsg>), JoinErr>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum BrokerMsg {
-    Join(PlayerId),
-    Left(PlayerId),
+    Join(Arc<str>),
+    Left(Arc<str>),
     Started(Start),
     NotEnoughPlayers,
 }
@@ -49,12 +50,12 @@ pub struct GameInfo {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Start {
     assignment: Option<Assignment>,
-    first: String,
+    first: Arc<str>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Assignment {
-    location: String,
+    location: Arc<str>,
     role: String,
 }
 
@@ -228,16 +229,18 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                 RoomMsg::Leave { name, room } => {
                     println!("Removing {} from room {}", name, room);
                     if let Some(room) = rooms.try_remove_player(&name, room) {
-                        send_room(room.players.iter(), &BrokerMsg::Left(name)).await?;
+                        send_room(room.players.iter(), BrokerMsg::Left(Arc::from(name))).await?;
                     }
                 }
                 RoomMsg::Start { room } => {
                     if let Some(room) = rooms.get_room(&room) {
                         if room.players.len() < MIN_PLAYERS_TO_START_GAME {
-                            send_room(room.players.iter(), &BrokerMsg::NotEnoughPlayers).await?;
+                            send_room(room.players.iter(), BrokerMsg::NotEnoughPlayers).await?;
                         } else {
                             let names = room.players.iter().map(|x| x.name.clone()).collect();
                             let mut game_info = assign_roles(names, &repo, &rng);
+                            let location = Arc::from(game_info.location);
+                            let first = Arc::from(game_info.first);
                             for Player { name, sender } in &room.players {
                                 let assignment = if *name == game_info.spy {
                                     None
@@ -248,14 +251,14 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                                         .ok_or_else(|| format!("no role assigned to {}", name))?;
                                     Some(Assignment {
                                         role,
-                                        location: game_info.location.clone(),
+                                        location: Arc::clone(&location),
                                     })
                                 };
 
                                 sender
                                     .send(BrokerMsg::Started(Start {
                                         assignment,
-                                        first: game_info.first.clone(),
+                                        first: Arc::clone(&first),
                                     }))
                                     .await?;
                             }
@@ -284,14 +287,11 @@ async fn add_player(
 
     if find_index(&room_entry.get().players, &name).is_none() {
         // message other players a new player is joining
-        if let Err(e) = send_room(
+        send_room(
             room_entry.get().players.iter(),
-            &BrokerMsg::Join(name.clone()),
+            BrokerMsg::Join(Arc::from(name.clone())),
         )
-        .await
-        {
-            return Err(e);
-        }
+        .await?;
 
         let (sender, rx) = channel::bounded(1);
         // insert new player
@@ -315,7 +315,7 @@ async fn add_player(
     }
 }
 
-async fn send_room(iter: impl Iterator<Item = &Player>, msg: &BrokerMsg) -> AsyncResult<()> {
+async fn send_room(iter: impl Iterator<Item = &Player>, msg: BrokerMsg) -> AsyncResult<()> {
     for player in iter {
         let clone = msg.clone();
         player.sender.send(clone).await?;
@@ -442,7 +442,7 @@ mod tests {
             );
             assert_eq!(
                 player_one_broker_stream.recv().await.unwrap(),
-                BrokerMsg::Join(player_two.clone())
+                BrokerMsg::Join(Arc::from(player_two.clone()))
             );
 
             broker_tx
