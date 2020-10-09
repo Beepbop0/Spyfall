@@ -59,30 +59,25 @@ pub struct Assignment {
     role: String,
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct Room {
-    players: Vec<Player>,
-}
-
 #[derive(Debug)]
-pub struct Player {
-    pub name: PlayerId,
-    pub sender: Sender<BrokerMsg>,
+pub struct Room {
+    names: Vec<String>,
+    senders: Vec<Sender<BrokerMsg>>,
 }
 
-impl PartialEq<PlayerId> for Player {
-    fn eq(&self, other: &PlayerId) -> bool {
-        self.name.eq(other)
+impl PartialEq<Vec<String>> for Room {
+    fn eq(&self, other: &Vec<String>) -> bool {
+        self.names.eq(other)
     }
 }
 
-impl PartialEq for Player {
+impl PartialEq<Room> for Room {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.names.eq(&other.names)
     }
 }
 
-impl Eq for Player {}
+impl Eq for Room {}
 
 // TODO: Use this instead of just the string name provied by the user.
 // should consist of some kind of globally unique identifier + the user-submitted name
@@ -134,12 +129,14 @@ impl RoomTable {
     // (room may be evicted if it is empty)
     pub fn try_remove_player<'a>(&'a mut self, name: &PlayerId, room: RoomId) -> Option<&mut Room> {
         if let Entry::Occupied(mut room_entry) = self.0.entry(room) {
-            let player_index = find_index(&room_entry.get().players, name);
+            let player_index = find_index(&room_entry.get().names, name);
             if let Some(index) = player_index {
-                room_entry.get_mut().players.remove(index);
+                let room = room_entry.get_mut();
+                room.names.remove(index);
+                room.senders.remove(index);
             }
 
-            if room_entry.get().players.is_empty() {
+            if room_entry.get().names.is_empty() {
                 room_entry.remove_entry();
             } else if player_index.is_some() {
                 return Some(room_entry.into_mut());
@@ -206,18 +203,13 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                         .map(|vacant_room| {
                             let room_id = vacant_room.key().clone();
                             let (sender, rx) = channel::bounded(1);
-                            let players = vec![Player {
-                                name: name.clone(),
-                                sender,
-                            }];
-                            vacant_room.insert(Room { players });
-                            (
-                                Connected {
-                                    room_id,
-                                    players: vec![name],
-                                },
-                                rx,
-                            )
+                            let players = vec![name];
+                            let senders = vec![sender];
+                            vacant_room.insert(Room {
+                                names: players.clone(),
+                                senders,
+                            });
+                            (Connected { room_id, players }, rx)
                         })
                         .ok_or(JoinErr::FailedToCreateRoom);
                     sender.send(msg_back).await?;
@@ -229,19 +221,19 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                 RoomMsg::Leave { name, room } => {
                     println!("Removing {} from room {}", name, room);
                     if let Some(room) = rooms.try_remove_player(&name, room) {
-                        send_room(room.players.iter(), BrokerMsg::Left(Arc::from(name))).await?;
+                        send_room(&room.senders, BrokerMsg::Left(Arc::from(name))).await?;
                     }
                 }
                 RoomMsg::Start { room } => {
                     if let Some(room) = rooms.get_room(&room) {
-                        if room.players.len() < MIN_PLAYERS_TO_START_GAME {
-                            send_room(room.players.iter(), BrokerMsg::NotEnoughPlayers).await?;
+                        if room.names.len() < MIN_PLAYERS_TO_START_GAME {
+                            send_room(&room.senders, BrokerMsg::NotEnoughPlayers).await?;
                         } else {
-                            let names = room.players.iter().map(|x| x.name.clone()).collect();
+                            let names = room.names.clone();
                             let mut game_info = assign_roles(names, &repo, &rng);
                             let location = Arc::from(game_info.location);
                             let first = Arc::from(game_info.first);
-                            for Player { name, sender } in &room.players {
+                            for (i, name) in room.names.iter().enumerate() {
                                 let assignment = if *name == game_info.spy {
                                     None
                                 } else {
@@ -254,8 +246,7 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                                         location: Arc::clone(&location),
                                     })
                                 };
-
-                                sender
+                                room.senders[i]
                                     .send(BrokerMsg::Started(Start {
                                         assignment,
                                         first: Arc::clone(&first),
@@ -285,40 +276,35 @@ async fn add_player(
         Err(e) => return Ok(Err(e)),
     };
 
-    if find_index(&room_entry.get().players, &name).is_none() {
+    if find_index(&room_entry.get().names, &name).is_none() {
         // message other players a new player is joining
         send_room(
-            room_entry.get().players.iter(),
+            &room_entry.get().senders,
             BrokerMsg::Join(Arc::from(name.clone())),
         )
         .await?;
 
         let (sender, rx) = channel::bounded(1);
         // insert new player
-        room_entry.get_mut().players.push(Player { name, sender });
-        let player_names = room_entry
-            .get()
-            .players
-            .iter()
-            .map(|p| p.name.clone())
-            .collect();
+        let room = room_entry.get_mut();
+        room.names.push(name);
+        room.senders.push(sender);
+        let players = room.names.clone();
 
-        Ok(Ok((
-            Connected {
-                players: player_names,
-                room_id,
-            },
-            rx,
-        )))
+        Ok(Ok((Connected { players, room_id }, rx)))
     } else {
         Ok(Err(JoinErr::UsernameTaken))
     }
 }
 
-async fn send_room(iter: impl Iterator<Item = &Player>, msg: BrokerMsg) -> AsyncResult<()> {
-    for player in iter {
-        let clone = msg.clone();
-        player.sender.send(clone).await?;
+async fn send_room(senders: &[Sender<BrokerMsg>], msg: BrokerMsg) -> AsyncResult<()> {
+    // split to avoid extra clone call
+    if let Some((first, rest)) = senders.split_first() {
+        for sender in rest {
+            let clone = msg.clone();
+            sender.send(clone).await?;
+        }
+        first.send(msg).await?;
     }
     Ok(())
 }
