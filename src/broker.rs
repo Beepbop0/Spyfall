@@ -233,7 +233,7 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                             let mut game_info = assign_roles(names, &repo, &rng);
                             let location = Arc::from(game_info.location);
                             let first = Arc::from(game_info.first);
-                            for (i, name) in room.names.iter().enumerate() {
+                            for (name, sender) in room.names.iter().zip(&room.senders) {
                                 let assignment = if *name == game_info.spy {
                                     None
                                 } else {
@@ -246,7 +246,7 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                                         location: Arc::clone(&location),
                                     })
                                 };
-                                room.senders[i]
+                                sender
                                     .send(BrokerMsg::Started(Start {
                                         assignment,
                                         first: Arc::clone(&first),
