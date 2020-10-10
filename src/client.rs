@@ -26,10 +26,16 @@ pub struct Join {
     pub name: PlayerId,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RoomMsg {
     Leave { room: RoomId, name: PlayerId },
     Start { room: RoomId },
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq)]
+pub enum RoomCmd {
+    Leave,
+    Start,
 }
 
 /// what the client actor sends back to the browser
@@ -82,9 +88,7 @@ pub async fn client_actor(
     let join_msg = parse_msg::<Join>(first_msg)?;
     let name = join_msg.name.clone();
     let (join_tx, join_rx) = channel::bounded(1);
-    broker_tx
-        .send(ClientMsg::Join(join_msg.clone(), join_tx))
-        .await?;
+    broker_tx.send(ClientMsg::Join(join_msg, join_tx)).await?;
     let (room_rx_opt, join_res) = transpose_join_res(join_rx.recv().await?);
     send_back_msg(&join_res, &mut ws_sink).await?;
 
@@ -94,7 +98,8 @@ pub async fn client_actor(
             &broker_tx,
             &mut ws_stream,
             &mut ws_sink,
-            &join_msg.name,
+            &name,
+            &room,
         )
         .await;
         if let Err(_) = dropped {
@@ -118,6 +123,7 @@ async fn client_room_state<R, W>(
     ws_stream: &mut Pin<&mut R>,
     ws_sink: &mut Pin<&mut W>,
     player: &PlayerId,
+    room: &RoomId,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
 where
     R: Stream<Item = Result<WsMsg, WsErr>>,
@@ -141,9 +147,16 @@ where
                     "(Player {}) Dealing with room message from the websocket {}",
                     player, ws_msg
                 );
-                let room_msg = parse_msg::<RoomMsg>(ws_msg)?;
-                let exit = matches!(room_msg, RoomMsg::Leave { .. });
-                broker_tx.send(ClientMsg::Room(room_msg)).await?;
+                let cmd = parse_msg::<RoomCmd>(ws_msg)?;
+                let exit = matches!(cmd, RoomCmd::Leave);
+                let msg = match cmd {
+                    RoomCmd::Leave => RoomMsg::Leave {
+                        room: room.clone(),
+                        name: player.clone(),
+                    },
+                    RoomCmd::Start => RoomMsg::Start { room: room.clone() },
+                };
+                broker_tx.send(ClientMsg::Room(msg)).await?;
                 if exit {
                     break;
                 }

@@ -79,10 +79,6 @@ impl PartialEq<Room> for Room {
 
 impl Eq for Room {}
 
-// TODO: Use this instead of just the string name provied by the user.
-// should consist of some kind of globally unique identifier + the user-submitted name
-// struct Player {}
-
 #[derive(Debug, PartialEq)]
 pub struct RoomTable(HashMap<RoomId, Room>);
 
@@ -216,8 +212,6 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
                 }
             },
             ClientMsg::Room(room_msg) => match room_msg {
-                // TODO: it would probably better to guarantee that the leave message is sent by the player who is leaving.
-                // maybe create an associated UUID that ensures the correct client is sending these messages. Look at `Player` struct
                 RoomMsg::Leave { name, room } => {
                     println!("Removing {} from room {}", name, room);
                     if let Some(room) = rooms.try_remove_player(&name, room) {

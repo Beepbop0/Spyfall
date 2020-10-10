@@ -175,8 +175,8 @@ function Lobby(name, room, players, socket, err) {
         Players:
           {players.map((item, index) => (<li key={index}>{item}</li>))}
       </ul>
-      <button onClick={(event) => { socket.send(JSON.stringify({ "Start": { "room": room } })); }}>Start Game</button>
-    </div>
+      <button onClick={(event) => { socket.send(`"Start"`); }}>Start Game</button>
+    </div >
   );
 }
 
