@@ -16,7 +16,7 @@ function App() {
   if (!optionSelected) {
     return (
       <div>
-        {Entry(optionSelected, setOptionSelected, setShouldCreate)}
+        {Entry(setOptionSelected, setShouldCreate)}
       </div>
     );
   } else {
@@ -43,7 +43,7 @@ function App() {
 }
 
 // user choice to join or create a room
-function Entry(optionSelected, setOptionSelected, setShouldCreate) {
+function Entry(setOptionSelected, setShouldCreate) {
   return (
     <div>
       <button onClick={(event) => { setOptionSelected(true); setShouldCreate(false); }}>Join Room</button>
@@ -125,6 +125,7 @@ function handleConnect(name, room, setRoom, setSocket, players, setPlayers, setE
       let ok = msg.Ok;
       setErr(null);
       setRoom(ok.room_id);
+      console.log("setting the players to " + JSON.stringify(ok.players));
       setPlayers(ok.players);
       socket.onmessage = (ev) => handleBrokerMsg(ev, players, setPlayers, setMsg, setErr);
       socket.onclose = (ev) => handleClose(setSocket);
