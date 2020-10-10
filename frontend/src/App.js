@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import locations from './locations.json';
 
 const SERVER_URL = "ws://localhost:4212";
@@ -9,6 +9,8 @@ function App() {
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [players, setPlayers] = useState([]);
+  // use the latest player data for websocket callbacks to avoid stale data provided by using `players`
+  const playersRef = useRef([]);
   const [socket, setSocket] = useState(null);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
@@ -23,7 +25,7 @@ function App() {
     if (!socket) {
       return (
         <div>
-          {PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, players, setPlayers, err, setErr, setMsg)}
+          {PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg)}
         </div>
       );
     } else if (msg) {
@@ -54,7 +56,7 @@ function Entry(setOptionSelected, setShouldCreate) {
 
 // sets the name and room (if any is provided), onClick will create a websocket if successfully connected
 // otherwise will set err, which describes what went wrong when trying to connect to the server
-function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, players, setPlayers, err, setErr, setMsg) {
+function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg) {
   let errMsg = null;
   if (err) {
     console.log(JSON.stringify(err));
@@ -77,7 +79,7 @@ function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playe
         </label>
         <button onClick={(event) => {
           if (name.length > 0) {
-            handleConnect(name, room, setRoom, setSocket, players, setPlayers, setErr, setMsg);
+            handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
           } else {
             event.preventDefault();
           }
@@ -99,7 +101,7 @@ function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playe
         </label>
         <button onClick={(event) => {
           if (name.length > 0 && room.length > 0) {
-            handleConnect(name, room, setRoom, setSocket, players, setPlayers, setErr, setMsg);
+            handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
           } else {
             event.preventDefault();
           }
@@ -109,7 +111,7 @@ function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playe
   }
 }
 
-function handleConnect(name, room, setRoom, setSocket, players, setPlayers, setErr, setMsg) {
+function handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg) {
   const socket = new WebSocket(SERVER_URL);
   socket.onopen = (ev) => {
     let msg = JSON.stringify({
@@ -125,9 +127,9 @@ function handleConnect(name, room, setRoom, setSocket, players, setPlayers, setE
       let ok = msg.Ok;
       setErr(null);
       setRoom(ok.room_id);
-      console.log("setting the players to " + JSON.stringify(ok.players));
+      playersRef.current = ok.players;
       setPlayers(ok.players);
-      socket.onmessage = (ev) => handleBrokerMsg(ev, players, setPlayers, setMsg, setErr);
+      socket.onmessage = (ev) => handleBrokerMsg(ev, playersRef, setPlayers, setMsg, setErr);
       socket.onclose = (ev) => handleClose(setSocket);
       setSocket(socket);
     } else {
@@ -137,14 +139,18 @@ function handleConnect(name, room, setRoom, setSocket, players, setPlayers, setE
   };
 }
 
-function handleBrokerMsg(event, players, setPlayers, setMsg, setErr) {
+function handleBrokerMsg(event, playersRef, setPlayers, setMsg, setErr) {
   let msg = JSON.parse(event.data);
   if (msg.Join) {
     const newPlayer = msg.Join;
-    setPlayers([newPlayer, ...players]);
+    playersRef.current = [...playersRef.current, newPlayer];
+    // indicates the UI needs to be re-rendered
+    setPlayers(playersRef.current);
   } else if (msg.Left) {
     const exittedPlayer = msg.Left;
-    setPlayers(players.filter(p => p !== exittedPlayer));
+    playersRef.current = playersRef.current.filter(p => p !== exittedPlayer);
+    // indicates the UI needs to be re-rendered
+    setPlayers(playersRef.current);
   } else if (msg.Started) {
     setMsg(msg.Started);
   } else if (msg === "NotEnoughPlayers") {
