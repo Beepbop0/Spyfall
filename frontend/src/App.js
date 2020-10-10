@@ -25,7 +25,7 @@ function App() {
     if (!socket) {
       return (
         <div>
-          {PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg)}
+          {PlayerForm(setOptionSelected, shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg)}
         </div>
       );
     } else if (msg) {
@@ -56,7 +56,7 @@ function Entry(setOptionSelected, setShouldCreate) {
 
 // sets the name and room (if any is provided), onClick will create a websocket if successfully connected
 // otherwise will set err, which describes what went wrong when trying to connect to the server
-function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg) {
+function PlayerForm(setOptionSelected, shouldCreate, name, setName, room, setRoom, setSocket, playersRef, setPlayers, err, setErr, setMsg) {
   let errMsg = null;
   if (err) {
     console.log(JSON.stringify(err));
@@ -79,11 +79,12 @@ function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playe
         </label>
         <button onClick={(event) => {
           if (name.length > 0) {
-            handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
+            handleConnect(setOptionSelected, name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
           } else {
             event.preventDefault();
           }
         }}> Create </button>
+        <button onClick={(event) => { setOptionSelected(false); }}> Back </button>
       </div>
     );
   } else {
@@ -101,17 +102,18 @@ function PlayerForm(shouldCreate, name, setName, room, setRoom, setSocket, playe
         </label>
         <button onClick={(event) => {
           if (name.length > 0 && room.length > 0) {
-            handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
+            handleConnect(setOptionSelected, name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg);
           } else {
             event.preventDefault();
           }
         }}> Join {room} </button>
+        <button onClick={(event) => { setOptionSelected(false); }}> Back </button>
       </div>
     );
   }
 }
 
-function handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg) {
+function handleConnect(setOptionSelected, name, room, setRoom, setSocket, playersRef, setPlayers, setErr, setMsg) {
   const socket = new WebSocket(SERVER_URL);
   socket.onopen = (ev) => {
     let msg = JSON.stringify({
@@ -130,7 +132,7 @@ function handleConnect(name, room, setRoom, setSocket, playersRef, setPlayers, s
       playersRef.current = ok.players;
       setPlayers(ok.players);
       socket.onmessage = (ev) => handleBrokerMsg(ev, playersRef, setPlayers, setMsg, setErr);
-      socket.onclose = (ev) => handleClose(setSocket);
+      socket.onclose = (ev) => handleClose(setSocket, setRoom, setOptionSelected);
       setSocket(socket);
     } else {
       setSocket(null);
@@ -160,8 +162,10 @@ function handleBrokerMsg(event, playersRef, setPlayers, setMsg, setErr) {
   }
 }
 
-function handleClose(setSocket) {
+function handleClose(setSocket, setRoom, setOptionSelected) {
   setSocket(null);
+  setRoom("");
+  setOptionSelected(false);
 }
 
 function Lobby(name, room, players, socket, err) {
@@ -176,6 +180,7 @@ function Lobby(name, room, players, socket, err) {
           {players.map((item, index) => (<li key={index}>{item}</li>))}
       </ul>
       <button onClick={(event) => { socket.send(`"Start"`); }}>Start Game</button>
+      <button onClick={(event) => { socket.send(`"Leave"`); }}>Leave Room</button>
     </div >
   );
 }
