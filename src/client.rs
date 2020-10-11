@@ -38,9 +38,6 @@ pub enum RoomCmd {
     Start,
 }
 
-/// what the client actor sends back to the browser
-/// if assignment is `None`, the player is the spy
-
 #[derive(Debug)]
 pub enum ParseErr {
     MalformedMsg(serde_json::Error),
@@ -116,7 +113,7 @@ pub async fn client_actor(
 /// Use a separate function when the client has joined a room. This is so if the client encounters any errors,
 /// the parent function can notify the broker the client has dropped
 /// NOTE: would have been nicer to keep this in the parent function (indicated by the arity of this fn),
-//        look into changing this to a try block when that is stablilized.
+///       look into changing this to a try block when that is stablilized.
 async fn client_room_state<R, W>(
     room_rx: Receiver<BrokerMsg>,
     broker_tx: &Sender<ClientMsg>,
@@ -192,7 +189,7 @@ pub fn parse_msg<D: DeserializeOwned>(ws_msg: WsMsg) -> Result<D, ParseErr> {
 }
 
 /// Convert the broker's join result into a tuple of the info the client_actor will need
-//// and a serialize-able message that can be sent back to the client
+/// and a serialize-able message that can be sent back to the client
 fn transpose_join_res(
     join_res: JoinResult,
 ) -> (

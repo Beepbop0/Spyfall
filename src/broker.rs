@@ -121,8 +121,8 @@ impl RoomTable {
         None
     }
 
-    // Attempts to remove a player from a room. Returns a mutable reference to the room if successful and the room still exists
-    // (room may be evicted if it is empty)
+    /// Attempts to remove a player from a room. Returns a mutable reference to the room if successful and the room still exists
+    /// (room may be evicted if it is empty)
     pub fn try_remove_player<'a>(&'a mut self, name: &PlayerId, room: RoomId) -> Option<&mut Room> {
         if let Entry::Occupied(mut room_entry) = self.0.entry(room) {
             let player_index = find_index(&room_entry.get().names, name);
@@ -257,9 +257,9 @@ pub async fn broker_actor(client_listener: Receiver<ClientMsg>) -> AsyncResult<R
     Ok(rooms)
 }
 
-// attemps to add a player
-// the outermost error is a programatic error (unexpected)
-// the inner result is what to send back to the client (errors of usage, and are expected)
+/// attempts to add a player
+/// the outermost error is a programatic error (unexpected)
+/// the inner result is what to send back to the client (errors of usage, and are expected)
 async fn add_player(
     rooms: &mut RoomTable,
     room_id: RoomId,
