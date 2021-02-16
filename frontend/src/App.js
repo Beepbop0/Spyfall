@@ -84,7 +84,7 @@ function PlayerForm(setOptionSelected, shouldCreate, name, setName, room, setRoo
             event.preventDefault();
           }
         }}> Create </button>
-        <button onClick={(event) => { setOptionSelected(false); }}> Back </button>
+        <button onClick={(event) => { setOptionSelected(false); setErr(null); }}> Back </button>
       </div>
     );
   } else {
@@ -107,7 +107,7 @@ function PlayerForm(setOptionSelected, shouldCreate, name, setName, room, setRoo
             event.preventDefault();
           }
         }}> Join {room} </button>
-        <button onClick={(event) => { setOptionSelected(false); }}> Back </button>
+        <button onClick={(event) => { setOptionSelected(false); setErr(null); setRoom(""); }}> Back </button>
       </div>
     );
   }
